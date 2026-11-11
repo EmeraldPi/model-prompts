@@ -14,10 +14,10 @@ Nothing is applied by default. You write the rules.
 
 ## Install
 
-From ClawHub (once published; the exact package name will be listed here):
+From ClawHub (once published):
 
 ```bash
-openclaw plugins install <package-name>
+openclaw plugins install model-prompts
 ```
 
 From a clone of this repo:

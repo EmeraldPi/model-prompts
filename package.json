@@ -1,5 +1,5 @@
 {
-  "name": "@emeraldpi/openclaw-model-prompts",
+  "name": "model-prompts",
   "version": "0.1.0",
   "description": "OpenClaw plugin: append or prepend system-prompt text for specific models or providers",
   "license": "MIT",
