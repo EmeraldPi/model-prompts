@@ -1,0 +1,48 @@
+{
+  "id": "model-prompts",
+  "name": "Model Prompts",
+  "description": "Append or prepend system-prompt text for specific models or providers.",
+  "categories": ["other"],
+  "activation": { "onStartup": true },
+  "uiHints": {
+    "rules": {
+      "label": "Prompt Rules",
+      "help": "Each rule matches a model or provider and adds text to the system prompt. Non-bundled plugins also need plugins.entries.model-prompts.hooks.allowConversationAccess: true."
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "rules": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["match", "text"],
+          "properties": {
+            "id": { "type": "string" },
+            "enabled": { "type": "boolean" },
+            "match": {
+              "oneOf": [
+                { "type": "string", "minLength": 1 },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "minProperties": 1,
+                  "properties": {
+                    "provider": { "type": "string", "minLength": 1 },
+                    "model": { "type": "string", "minLength": 1 }
+                  }
+                }
+              ]
+            },
+            "agents": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "position": { "type": "string", "enum": ["append", "prepend"] },
+            "text": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}
