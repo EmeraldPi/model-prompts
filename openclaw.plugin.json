@@ -2,12 +2,44 @@
   "id": "model-prompts",
   "name": "Model Prompts",
   "description": "Append or prepend system-prompt text for specific models or providers.",
-  "categories": ["other"],
-  "activation": { "onStartup": true },
+  "categories": [
+    "other"
+  ],
+  "activation": {
+    "onStartup": true
+  },
   "uiHints": {
     "rules": {
       "label": "Prompt Rules",
-      "help": "Each rule matches a model or provider and adds text to the system prompt. Non-bundled plugins also need plugins.entries.model-prompts.hooks.allowConversationAccess: true."
+      "help": "Each rule adds text to the system prompt for the models it matches. Also turn on conversation access for this plugin under Permissions, or the rules do nothing."
+    },
+    "rules.*.match": {
+      "label": "Model",
+      "help": "Which model gets this text: a provider/model pattern where * matches anything. Use opencode-go/* for a whole provider, or */deepseek-* for a model on any provider.",
+      "placeholder": "opencode-go/deepseek-*"
+    },
+    "rules.*.text": {
+      "label": "Prompt text",
+      "help": "Added to the system prompt, wrapped in OpenClaw's plugin-context block.",
+      "placeholder": "Before each tool call, write one short sentence saying what you are about to do.",
+      "multiline": true
+    },
+    "rules.*.position": {
+      "label": "Where to add it",
+      "help": "append (default) puts the text near the end of the prompt. prepend puts it at the very top."
+    },
+    "rules.*.agents": {
+      "label": "Only these agents",
+      "help": "Agent ids (wildcards allowed). Leave empty to apply to every agent."
+    },
+    "rules.*.enabled": {
+      "label": "Enabled",
+      "help": "Turn off to keep the rule without applying it."
+    },
+    "rules.*.id": {
+      "label": "Name",
+      "help": "Optional label shown in log warnings.",
+      "advanced": true
     }
   },
   "configSchema": {
@@ -19,27 +51,39 @@
         "items": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["match", "text"],
+          "required": [
+            "match",
+            "text"
+          ],
           "properties": {
-            "id": { "type": "string" },
-            "enabled": { "type": "boolean" },
+            "id": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
             "match": {
-              "oneOf": [
-                { "type": "string", "minLength": 1 },
-                {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "minProperties": 1,
-                  "properties": {
-                    "provider": { "type": "string", "minLength": 1 },
-                    "model": { "type": "string", "minLength": 1 }
-                  }
-                }
+              "type": "string",
+              "minLength": 1
+            },
+            "agents": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "position": {
+              "type": "string",
+              "enum": [
+                "append",
+                "prepend"
               ]
             },
-            "agents": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-            "position": { "type": "string", "enum": ["append", "prepend"] },
-            "text": { "type": "string", "minLength": 1 }
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }

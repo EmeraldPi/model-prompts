@@ -31,6 +31,9 @@ OpenClaw `2026.11.2` or newer. See [Compatibility](#compatibility).
 
 ## Configure
 
+You can set this up in the Control UI (Settings, then Model Prompts) or in `openclaw.json`. In the
+UI, turn on conversation access for the plugin under **Permissions**, then add rules with **+**.
+
 Non-bundled plugins must be granted conversation access before OpenClaw will run their
 `before_prompt_build` hook. **Without this grant the plugin loads but does nothing.**
 
@@ -61,7 +64,7 @@ Config changes hot-reload; no gateway restart is needed.
 
 | Field      | Required | Description |
 | ---------- | -------- | ----------- |
-| `match`    | yes      | Which model the rule applies to. A glob string over `provider/model`, or an object with `provider` and/or `model` globs. |
+| `match`    | yes      | Which model the rule applies to: a glob over `provider/model`, such as `opencode-go/deepseek-*`. |
 | `text`     | yes      | The text to add. |
 | `position` | no       | `"append"` (default) or `"prepend"`. See [Where the text goes](#where-the-text-goes). |
 | `agents`   | no       | Agent ids (globs allowed). When set, the rule applies only to those agents. |
@@ -71,9 +74,8 @@ Config changes hot-reload; no gateway restart is needed.
 ### Matching
 
 - Matching is case-insensitive. `*` matches any run of characters, including `/`; `?` matches one character.
-- A string `match` is tested against `provider/model`, for example `opencode-go/deepseek-v4.1-flash`.
-- An object `match` tests each field you give it against the provider id and the model id separately:
-  `{ provider: "opencode-go", model: "deepseek-*" }`.
+- `match` is tested against `provider/model`, for example `opencode-go/deepseek-v4.1-flash`.
+- Use `opencode-go/*` for a whole provider, or `*/deepseek-*` for a model on any provider.
 - Every rule that matches applies. Their text is joined with a blank line, in config order, separately for each position.
 - A rule never matches when the model is unknown to the hook.
 - A malformed rule is skipped with a warning in the gateway log; the other rules still load.

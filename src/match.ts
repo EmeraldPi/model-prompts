@@ -1,11 +1,10 @@
-export type ModelMatcher = string | { provider?: string; model?: string };
-
 export type Position = "append" | "prepend";
 
 export type PromptRule = {
   id?: string;
   enabled?: boolean;
-  match: ModelMatcher;
+  /** Glob over "provider/model". */
+  match: string;
   agents?: string[];
   position?: Position;
   text: string;
@@ -37,22 +36,6 @@ export function globMatches(pattern: string, value: string): boolean {
   return globToRegExp(pattern).test(value);
 }
 
-function matcherApplies(matcher: ModelMatcher, target: RunTarget): boolean {
-  const { provider, modelId } = target;
-  if (typeof matcher === "string") {
-    // A bare string is a glob over the full "provider/model" reference.
-    if (!provider || !modelId) return false;
-    return globMatches(matcher, `${provider}/${modelId}`);
-  }
-  if (matcher.provider !== undefined) {
-    if (!provider || !globMatches(matcher.provider, provider)) return false;
-  }
-  if (matcher.model !== undefined) {
-    if (!modelId || !globMatches(matcher.model, modelId)) return false;
-  }
-  return true;
-}
-
 export function ruleApplies(rule: PromptRule, target: RunTarget): boolean {
   if (rule.enabled === false) return false;
   if (rule.agents && rule.agents.length > 0) {
@@ -60,7 +43,9 @@ export function ruleApplies(rule: PromptRule, target: RunTarget): boolean {
       return false;
     }
   }
-  return matcherApplies(rule.match, target);
+  // The match is a glob over the full "provider/model" reference.
+  if (!target.provider || !target.modelId) return false;
+  return globMatches(rule.match, `${target.provider}/${target.modelId}`);
 }
 
 export type Composed = {

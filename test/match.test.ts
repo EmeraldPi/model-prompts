@@ -22,17 +22,17 @@ describe("ruleApplies", () => {
     expect(ruleApplies({ match: "opencode-go/deepseek-*", text: "x" }, ds)).toBe(true);
     expect(ruleApplies({ match: "deepseek/*", text: "x" }, ds)).toBe(false);
   });
-  it("matches provider-only, model-only and both", () => {
-    expect(ruleApplies({ match: { provider: "opencode-go" }, text: "x" }, ds)).toBe(true);
-    expect(ruleApplies({ match: { model: "deepseek-*" }, text: "x" }, ds)).toBe(true);
-    expect(ruleApplies({ match: { provider: "deepseek", model: "deepseek-*" }, text: "x" }, ds)).toBe(false);
+  it("covers whole providers and any-provider models with wildcards", () => {
+    expect(ruleApplies({ match: "opencode-go/*", text: "x" }, ds)).toBe(true);
+    expect(ruleApplies({ match: "*/deepseek-*", text: "x" }, ds)).toBe(true);
+    expect(ruleApplies({ match: "deepseek/deepseek-*", text: "x" }, ds)).toBe(false);
   });
   it("never matches model-scoped rules when the model is unknown", () => {
     expect(ruleApplies({ match: "*", text: "x" }, { agentId: "main" })).toBe(false);
-    expect(ruleApplies({ match: { model: "*" }, text: "x" }, { provider: "p" })).toBe(false);
+    expect(ruleApplies({ match: "*/*", text: "x" }, { provider: "p" })).toBe(false);
   });
   it("filters by agent when agents is set", () => {
-    const rule: PromptRule = { match: { provider: "opencode-go" }, agents: ["main", "ops-*"], text: "x" };
+    const rule: PromptRule = { match: "opencode-go/*", agents: ["main", "ops-*"], text: "x" };
     expect(ruleApplies(rule, ds)).toBe(true);
     expect(ruleApplies(rule, { ...ds, agentId: "ops-1" })).toBe(true);
     expect(ruleApplies(rule, { ...ds, agentId: "other" })).toBe(false);
@@ -53,7 +53,7 @@ describe("composeContext", () => {
       [
         { match: "opencode-go/*", text: "first" },
         { match: "nope/*", text: "skipped" },
-        { match: { model: "deepseek-*" }, text: " second " },
+        { match: "*/deepseek-*", text: " second " },
       ],
       ds,
     );

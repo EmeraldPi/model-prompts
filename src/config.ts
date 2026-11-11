@@ -1,18 +1,9 @@
-import type { ModelMatcher, Position, PromptRule } from "./match.js";
+import type { Position, PromptRule } from "./match.js";
 
 export type ParseResult = { rules: PromptRule[]; warnings: string[] };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
-}
-
-function parseMatcher(v: unknown): ModelMatcher | undefined {
-  if (typeof v === "string") return v.trim() ? v.trim() : undefined;
-  if (!isRecord(v)) return undefined;
-  const out: { provider?: string; model?: string } = {};
-  if (typeof v.provider === "string" && v.provider.trim()) out.provider = v.provider.trim();
-  if (typeof v.model === "string" && v.model.trim()) out.model = v.model.trim();
-  return out.provider !== undefined || out.model !== undefined ? out : undefined;
 }
 
 /**
@@ -33,9 +24,9 @@ export function parseConfig(raw: unknown): ParseResult {
       warnings.push(`rule ${label}: not an object; skipped`);
       return;
     }
-    const match = parseMatcher(entry.match);
+    const match = typeof entry.match === "string" ? entry.match.trim() : "";
     if (!match) {
-      warnings.push(`rule ${label}: missing or invalid "match"; skipped`);
+      warnings.push(`rule ${label}: "match" must be a non-empty string like "provider/model*"; skipped`);
       return;
     }
     if (typeof entry.text !== "string" || !entry.text.trim()) {

@@ -10,13 +10,13 @@ describe("parseConfig", () => {
     const { rules, warnings } = parseConfig({
       rules: [
         { id: "a", match: "p/m*", text: "hi", position: "prepend", agents: ["main", ""] },
-        { match: { provider: "p" }, text: "yo", enabled: false },
+        { match: "p/*", text: "yo", enabled: false },
       ],
     });
     expect(warnings).toEqual([]);
     expect(rules).toEqual([
       { id: "a", match: "p/m*", text: "hi", position: "prepend", agents: ["main"] },
-      { match: { provider: "p" }, text: "yo", enabled: false },
+      { match: "p/*", text: "yo", enabled: false },
     ]);
   });
   it("skips bad rules with a warning but keeps good ones", () => {
@@ -24,14 +24,15 @@ describe("parseConfig", () => {
       rules: [
         "nope",
         { match: "", text: "x" },
+        { match: { provider: "p" }, text: "x" },
         { match: "a/b", text: "  " },
         { id: "bad-pos", match: "a/b", text: "x", position: "middle" },
         { id: "ok", match: "a/b", text: "x" },
       ],
     });
     expect(rules).toEqual([{ id: "ok", match: "a/b", text: "x" }]);
-    expect(warnings).toHaveLength(4);
-    expect(warnings[3]).toContain("bad-pos");
+    expect(warnings).toHaveLength(5);
+    expect(warnings[4]).toContain("bad-pos");
   });
   it("warns when rules is not an array", () => {
     expect(parseConfig({ rules: "x" }).warnings).toHaveLength(1);
